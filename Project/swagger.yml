@@ -1,0 +1,454 @@
+openapi: "3.0.0"
+info:
+  description: "This swagger provides a REST API that allows you to interact with your `DPE` Database"
+  version: 1.0.0
+  title: DPE_Data_Retreiver
+
+servers:
+  - url: http://localhost:5000/v1
+  - url: /api
+
+paths:
+  /habitation:
+    get:
+      operationId: habitation.search_all_habitation
+      tags:
+        - Habitation
+      summary: Retrieve all the Habitations
+      description: read from mongo all the documents (according to the number) then take the habitations
+      parameters:
+        - name: length
+          in: query
+          description: Number of habitation to retreive
+          required: false
+          schema:
+            type: number
+        - name: secteur_activite
+          in: query
+          description: tell if the appartement or maison
+          required: false
+          schema:
+            type: string
+        - name: surface_habitable
+          in: query
+          description: how many m2 is habibtable give a range in the form "number-number" example "100-150"
+          required: false
+          schema:
+            type: string
+        - name: annee_construction
+          in: query
+          description: show us the year where a certain house is constructed
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Successfully read habitations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Habitation"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /habitation/{DPEID}:
+    get:
+      operationId: habitation.search_habitation_by_ID
+      tags:
+        - Habitation
+      summary: Retrieve a specific Habitation by id
+      description: read a specific habitation by ID provided by the user (same ID as document DPE)
+      parameters:
+        - name: DPEID
+          in: path
+          required: true
+          description: The id of the Habitation to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The Habitation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Habitation"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+  /DPE:
+    get:
+      operationId: DPE.search_all_DPE
+      tags:
+        - DPE
+      summary: Retrieve documents
+      description: Read all documents DPE and show them to the user
+      parameters:
+        - name: length
+          in: query
+          description: Number of DPE documents to retreive
+          required: false
+          schema:
+            type: number
+        - name: classe_consommation_energie
+          in: query
+          description: This is to choose between classes from A to H or N to know the level of energie consommation
+          required: false
+          schema:
+            type: string
+        - name: classe_estimation_ges
+          in: query
+          description: This is to choose between classes from A to G or N to know the estimation ges
+          required: false
+          schema:
+            type: string
+        - name: consommation_energie
+          in: query
+          description: pass on a range of energie consomtion in the form of "number-number" example "130-140"
+          required: false
+          schema:
+            type: string
+        - name: nom_methode_dpe
+          in: query
+          description: Precising which classes that we need that can be really helpfull for our work example "3CL"
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of Documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /DPE/{DPEID}:
+    get:
+      operationId: DPE.search_DPE_by_ID
+      tags:
+        - DPE
+      summary: Retrieve a specific Habitation by id
+      description: Read one Document according to ID
+      parameters:
+        - name: DPEID
+          in: path
+          required: true
+          description: The id of the DPE to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retreiving the document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /inventory:
+    get:
+      operationId: inventory.inventory_count
+      tags:
+        - Inventory
+      summary: Count the needed documents according to certain filters
+      description: find the needed information and return count of it
+      parameters:
+        - name: classe_consommation_energie
+          in: query
+          description: This is to choose between classes from A to H or N to know the level of energie consommation
+          required: false
+          schema:
+            type: string
+        - name: classe_estimation_ges
+          in: query
+          description: This is to choose between classes from A to G or N to know the estimation ges
+          required: false
+          schema:
+            type: string
+        - name: consommation_energie
+          in: query
+          description: pass on a range of energie consomtion in the form of "number-number" example "130-140"
+          required: false
+          schema:
+            type: string
+        - name: nom_methode_dpe
+          in: query
+          description: Precising which classes that we need that can be really helpfull for our work example "3CL"
+          required: false
+          schema:
+            type: string
+        - name: secteur_activite
+          in: query
+          description: tell if the appartement or maison
+          required: false
+          schema:
+            type: string
+        - name: surface_habitable
+          in: query
+          description: how many m2 is habibtable give a range in the form "number-number" example "100-150"
+          required: false
+          schema:
+            type: string
+        - name: annee_construction
+          in: query
+          description: show us the year where a certain house is constructed
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Successfully retreiving the document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+
+    maison:
+      type: object
+      properties:
+        surface_habitable:
+          type: number
+        surface_thermique_lot:
+          type: number
+        etage :
+          type: number
+        porte :
+          type: number
+        presence_verriere:
+          type: number
+        surface_verriere:
+          type: number
+        type_vitrage_verriere:
+          type: number
+        nombre_entrees_avec_sas:
+          type: number
+        nombre_entrees_sans_sas:
+          type: number
+
+    quartier:
+      type: object
+      properties:
+        tv016_departement_id:
+          type: number
+        commune:
+          type: string
+        arrondissement:
+          type: string
+        type_voie:
+          type: string
+        nom_rue:
+          type: string
+        numero_rue:
+          type: string
+        code_postal:
+          type: string
+        code_insee_commune:
+          type: string
+        code_insee_commune_actualise:
+          type: string
+
+    batiment:
+      type: object
+      properties:
+        tr002_type_batiment_id :
+          type: number
+        secteur_activite :
+          type: string
+        annee_construction :
+          type: number
+        batiment:
+          type: number
+        escalier :
+          type: number
+        numero_lot :
+          type: number
+        surface_commerciale_contractuelle :
+          type:  number
+        portee_dpe_batiment :
+          type: number
+        partie_batiment :
+          type: number
+        shon:
+          type: number
+        surface_utile :
+          type: number
+        surface_thermique_parties_communes :
+          type:  number
+        en_souterrain :
+          type: number
+        en_surface:
+          type: number
+        nombre_niveaux :
+          type:  number
+        surface_baies_orientees_est_ouest :
+          type: number
+        surface_baies_orientees_sud :
+          type: number
+        surface_planchers_hauts_deperditifs :
+          type: number
+        surface_planchers_bas_deperditifs :
+          type: number
+        surface_parois_verticales_opaques_deperditives :
+          type: number
+        etat_avancement :
+          type: number
+        organisme_certificateur :
+          type: string
+        adresse_organisme_certificateur:
+          type: string
+        dpe_vierge:
+          type: number
+        est_efface:
+          type: number
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+
+    Habitation:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        maison:
+          $ref: "#/components/schemas/maison"
+        quartier:
+          $ref: "#/components/schemas/quartier"
+        batiment:
+          $ref: "#/components/schemas/batiment"
+
+    Identification:
+      type: object
+      properties:
+        id:
+          type: number
+        usr_diagnostiqueur_id:
+          type: number
+        usr_logiciel_id:
+          type: number
+        tr001_modele_dpe_id:
+          type: number
+
+    Methodologie:
+      type: object
+      properties:
+        nom_methode_dpe:
+          type: string
+        version_methode_dpe:
+          type: string
+        nom_methode_etude_thermique:
+          type: number
+        version_methode_etude_thermique:
+          type: number
+
+    Date:
+      type: object
+      properties:
+        date_visite_diagnostiqueur:
+          type: string
+        date_etablissement_dpe:
+          type: string
+        date_arrete_tarifs_energies:
+          type: string
+        date_reception_dpe:
+          type: string
+
+    Commentaire:
+      type: object
+      properties:
+        commentaires_ameliorations_recommandations:
+          type: number
+        explication_personnalisee:
+          type: number
+
+    ConsommationsEnergie:
+      type: object
+      properties:
+        consommation_energie:
+          type: number
+        classe_consommation_energie:
+          type: string
+
+    EmissionsGes:
+      type: object
+      properties:
+        estimation_ges:
+          type: number
+        classe_estimation_ges:
+          type: string
+
+    Document:
+      type: object
+      properties:
+        numero_dpe:
+          type: string
+
+        Identification:
+          $ref: "#/components/schemas/Identification"
+
+        Methodologie:
+          $ref: "#/components/schemas/Methodologie"
+
+        Date:
+          $ref: "#/components/schemas/Date"
+
+        Commentaire:
+          $ref: "#/components/schemas/Commentaire"
+
+        ConsommationsEnergie:
+          $ref: "#/components/schemas/ConsommationsEnergie"
+
+        EmissionGes:
+          $ref: "#/components/schemas/EmissionsGes"
+
+        Quartier:
+          $ref: "#/components/schemas/quartier"
+
+        Batiment:
+          $ref: "#/components/schemas/batiment"
+
+        Maison:
+          $ref: "#/components/schemas/maison"
+            
