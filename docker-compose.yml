@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: energie
+    image: energiedataregistry.azurecr.io/energie #mohamadhachem/
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - isolated_network
+    environment:
+      - MONGO_HOST=mongodb
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+    depends_on:
+      - mongodb
+
+  mongodb:
+    container_name: mongodb
+    hostname: mongodb
+    environment:
+      - MONGO_INITDB_DATABASE=energie_database
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+  #    - MONGO_HOST=testmongodb
+    image: mongo
+    ports:
+      - "27017:27017"
+#    volumes:
+#      - ./mongo_data:/data/db
+    networks:
+      - isolated_network
+
+networks:
+  isolated_network:
+    driver: bridge
